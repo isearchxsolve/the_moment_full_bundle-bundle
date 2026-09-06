@@ -1,0 +1,206 @@
+{
+  "1": {
+    "class_type": "UnetLoaderGGUF",
+    "inputs": {
+      "unet_name": "__GGUF_FILENAME__"
+    },
+    "_meta": {
+      "title": "HunyuanVideo 1.5 I2V (GGUF)"
+    }
+  },
+  "2": {
+    "class_type": "DualCLIPLoader",
+    "inputs": {
+      "clip_name1": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+      "clip_name2": "byt5_small_glyphxl_fp16.safetensors",
+      "type": "hunyuan_video"
+    },
+    "_meta": {
+      "title": "Text encoders"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "hunyuanvideo15_vae_fp16.safetensors"
+    },
+    "_meta": {
+      "title": "HunyuanVideo 1.5 VAE"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "POSITIVE",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Positive"
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "NEGATIVE",
+      "clip": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Negative"
+    }
+  },
+  "6": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "start.png"
+    },
+    "_meta": {
+      "title": "Input still"
+    }
+  },
+  "7": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "start.png"
+    },
+    "_meta": {
+      "title": "End frame stub (kit compat)"
+    }
+  },
+  "14": {
+    "class_type": "HunyuanVideo15ImageToVideo",
+    "inputs": {
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "start_image": [
+        "6",
+        0
+      ],
+      "width": 720,
+      "height": 480,
+      "length": 121,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "HunyuanVideo 1.5 I2V"
+    }
+  },
+  "15": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "14",
+        0
+      ],
+      "negative": [
+        "14",
+        1
+      ],
+      "latent_image": [
+        "14",
+        2
+      ],
+      "steps": 8,
+      "cfg": 7.0,
+      "sampler_name": "uni_pc",
+      "scheduler": "beta",
+      "seed": 42,
+      "denoise": 1.0
+    },
+    "_meta": {
+      "title": "Sample (8-step distilled)"
+    }
+  },
+  "16": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "15",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Decode"
+    }
+  },
+  "17": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": [
+        "16",
+        0
+      ],
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "hunyuan_i2v_take",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 18,
+      "save_output": true
+    },
+    "_meta": {
+      "title": "Combine -> mp4"
+    }
+  },
+  "_bind": {
+    "positive": [
+      "4",
+      "text"
+    ],
+    "negative": [
+      "5",
+      "text"
+    ],
+    "width": [
+      "14",
+      "width"
+    ],
+    "height": [
+      "14",
+      "height"
+    ],
+    "seconds": [
+      "14",
+      "length"
+    ],
+    "steps": [
+      "15",
+      "steps"
+    ],
+    "cfg": [
+      "15",
+      "cfg"
+    ],
+    "seed": [
+      "15",
+      "seed"
+    ],
+    "ref_dirs": [
+      "6",
+      "image"
+    ]
+  }
+}
